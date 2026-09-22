@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador Inteligente de Contratos - LegalTech</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1e293b; font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        button { background-color: #2563eb; color: white; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; width: 100%; transition: background 0.2s; }
+        button:hover { background-color: #1d4ed8; }
+        #resultado { margin-top: 30px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 13px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Gerador de Contratos Automatizados (MVP)</h1>
+    <form id="contratoForm">
+        <label for="tipo">Tipo de Contrato:</label>
+        <select id="tipo" name="tipo" required>
+            <option value="trabalho_eventual">Trabalho Eventual (Autônomo)</option>
+            <option value="compra_veiculo">Compra e Venda de Veículo</option>
+            <option value="locacao_residencial">Locação Residencial</option>
+        </select>
+
+        <label for="contratante">Parte 1 (Contratante / Vendedor / Locador):</label>
+        <input type="text" id="contratante" name="contratante" placeholder="Nome completo / Razão Social" required>
+
+        <label for="contratado">Parte 2 (Contratado / Comprador / Locatário):</label>
+        <input type="text" id="contratado" name="contratado" placeholder="Nome completo / Razão Social" required>
+
+        <label for="valor">Valor (R$):</label>
+        <input type="text" id="valor" name="valor" placeholder="Ex: 1.500,00" required>
+
+        <label for="data">Data / Vencimento / Prazo:</label>
+        <input type="text" id="data" name="data" placeholder="Ex: 30/11/2026" required>
+
+        <label for="objeto">Descrição do Objeto / Serviço / Imóvel:</label>
+        <textarea id="objeto" name="objeto" rows="3" placeholder="Detalhes específicos da negociação..." required></textarea>
+
+        <button type="submit">Gerar Contrato Jurídico</button>
+    </form>
+
+    <h2>Minuta Gerada:</h2>
+    <div id="resultado">Preencha o formulário acima e clique em gerar para visualizar o documento...</div>
+</div>
+
+<script>
+    document.getElementById('contratoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const dados = {
+            tipo: document.getElementById('tipo').value,
+            contratante: document.getElementById('contratante').value,
+            contratado: document.getElementById('contratado').value,
+            valor: document.getElementById('valor').value,
+            data: document.getElementById('data').value,
+            objeto: document.getElementById('objeto').value
+        };
+
+        const response = await fetch('/api/gerar-contrato', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        const resultado = await response.json();
+        if (resultado.sucesso) {
+            document.getElementById('resultado').textContent = resultado.contrato;
+        } else {
+            document.getElementById('resultado').textContent = "Erro ao gerar o contrato.";
+        }
+    });
+</script>
+
+</body>
+</html>
