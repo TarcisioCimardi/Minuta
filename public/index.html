@@ -24,7 +24,10 @@
         <select id="tipo" name="tipo" required>
             <option value="trabalho_eventual">Trabalho Eventual (Autônomo)</option>
             <option value="compra_veiculo">Compra e Venda de Veículo</option>
+            <option value="compra_imovel">Compra e Venda de Imóvel</option>
             <option value="locacao_residencial">Locação Residencial</option>
+            <option value="confidencialidade">Confidencialidade (NDA)</option>
+            <option value="parceria_comercial">Parceria Comercial</option>
         </select>
 
         <label for="contratante">Parte 1 (Contratante / Vendedor / Locador):</label>
@@ -34,10 +37,10 @@
         <input type="text" id="contratado" name="contratado" placeholder="Nome completo / Razão Social" required>
 
         <label for="valor">Valor (R$):</label>
-        <input type="text" id="valor" name="valor" placeholder="Ex: 1.500,00" required>
+        <input type="text" id="valor" name="valor" inputmode="decimal" placeholder="Ex: 1.500,00" required>
 
         <label for="data">Data / Vencimento / Prazo:</label>
-        <input type="text" id="data" name="data" placeholder="Ex: 30/11/2026" required>
+        <input type="text" id="data" name="data" inputmode="numeric" maxlength="10" placeholder="Ex: 30/11/2026" required>
 
         <label for="objeto">Descrição do Objeto / Serviço / Imóvel:</label>
         <textarea id="objeto" name="objeto" rows="3" placeholder="Detalhes específicos da negociação..." required></textarea>
@@ -50,6 +53,53 @@
 </div>
 
 <script>
+    const valorInput = document.getElementById('valor');
+    const dataInput = document.getElementById('data');
+
+    function posicionarCursor(input, quantidadeDigitos) {
+        let cursor = 0;
+        let digitosEncontrados = 0;
+
+        while (cursor < input.value.length && digitosEncontrados < quantidadeDigitos) {
+            if (/\d/.test(input.value[cursor])) digitosEncontrados++;
+            cursor++;
+        }
+
+        input.setSelectionRange(cursor, cursor);
+    }
+
+    valorInput.addEventListener('input', () => {
+        const cursorOriginal = valorInput.selectionStart;
+        const digitosAntesDoCursor = valorInput.value.slice(0, cursorOriginal).replace(/\D/g, '').length;
+        const digitos = valorInput.value.replace(/\D/g, '');
+
+        if (!digitos) {
+            valorInput.value = '';
+            return;
+        }
+
+        const digitosFormatados = digitos.padStart(3, '0');
+        const inteiros = digitosFormatados.slice(0, -2).replace(/^0+(?=\d)/, '');
+        const centavos = digitosFormatados.slice(-2);
+        const inteirosComSeparador = inteiros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        valorInput.value = `${inteirosComSeparador},${centavos}`;
+
+        const digitosAteCursor = digitosFormatados.length - (digitos.length - digitosAntesDoCursor);
+        posicionarCursor(valorInput, digitosAteCursor);
+    });
+
+    dataInput.addEventListener('input', () => {
+        const cursorOriginal = dataInput.selectionStart;
+        const digitosAntesDoCursor = dataInput.value.slice(0, cursorOriginal).replace(/\D/g, '').length;
+        const digitos = dataInput.value.replace(/\D/g, '').slice(0, 8);
+        const dataFormatada = digitos
+            .replace(/^(\d{2})(\d)/, '$1/$2')
+            .replace(/^(\d{2}\/\d{2})(\d)/, '$1/$2');
+
+        dataInput.value = dataFormatada;
+        posicionarCursor(dataInput, Math.min(digitosAntesDoCursor, digitos.length));
+    });
+
     document.getElementById('contratoForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
